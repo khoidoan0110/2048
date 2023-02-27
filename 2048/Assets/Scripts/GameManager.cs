@@ -8,7 +8,7 @@ public class GameManager : MonoBehaviour
     public Board board;
     public CanvasGroup gameOver;
     [SerializeField] private AudioSource audioSource;
-    [SerializeField] private AudioClip audioClip;
+    [SerializeField] private AudioClip loseClip;
     [SerializeField] private TextMeshProUGUI scoreText;
     [SerializeField] private TextMeshProUGUI hiscoreText;
     private int score;
@@ -25,6 +25,8 @@ public class GameManager : MonoBehaviour
 
     public void NewGame()
     {
+        audioSource.Play();
+
         SetScore(0);
         hiscoreText.text = LoadHighScore().ToString();
         
@@ -40,10 +42,11 @@ public class GameManager : MonoBehaviour
 
     public void GameOver()
     {
-        audioSource.PlayOneShot(audioClip, 0.4f);
+        audioSource.Stop();
+        audioSource.PlayOneShot(loseClip, 0.4f);
         board.enabled = false;
         gameOver.interactable = true;
-        StartCoroutine(Fade(gameOver, 1f, 1f));
+        StartCoroutine(Fade(gameOver, 1f, 0.7f));
     }
 
     private IEnumerator Fade(CanvasGroup canvasGroup, float to, float delay)
