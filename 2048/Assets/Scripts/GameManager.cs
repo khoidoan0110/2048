@@ -7,31 +7,50 @@ public class GameManager : MonoBehaviour
 {
     public Board board;
     public CanvasGroup gameOver;
-    [SerializeField] private AudioSource audioSource;
-    [SerializeField] private AudioClip loseClip;
+    public static GameManager instance;
+
     [SerializeField] private TextMeshProUGUI scoreText;
     [SerializeField] private TextMeshProUGUI hiscoreText;
-    private int score;
+    [SerializeField] private TextMeshProUGUI hiscoreVictoryMenuText;
+    [SerializeField] private GameObject settingsPanel;
+    [SerializeField] private GameObject victoryPanel;
+    private int score, highScore;
+    private bool settingsToggle = false;
 
     private void Awake()
     {
-        audioSource = GetComponent<AudioSource>();
+        if (instance == null)
+        {
+            instance = this;
+        }
     }
 
     private void Start()
     {
+        highScore = LoadHighScore();
         NewGame();
+    }
+
+    void Update()
+    {
+        if (score > highScore)
+        {
+            PlayerPrefs.SetInt("HighScore", score);
+            hiscoreText.text = score.ToString();
+        }
     }
 
     public void NewGame()
     {
-        audioSource.Play();
-
-        SetScore(0);
+        AudioManager.instance.PlayMusic("Background");
+        score = 0;
+        scoreText.text = score.ToString();
         hiscoreText.text = LoadHighScore().ToString();
-        
+
         gameOver.alpha = 0f;
         gameOver.interactable = false;
+
+        victoryPanel.SetActive(false);
 
         board.ClearBoard();
         //Create 2 start tiles
@@ -42,11 +61,34 @@ public class GameManager : MonoBehaviour
 
     public void GameOver()
     {
-        audioSource.Stop();
-        audioSource.PlayOneShot(loseClip, 0.4f);
+        AudioManager.instance.PlaySFX("Lose", 1f);
         board.enabled = false;
         gameOver.interactable = true;
         StartCoroutine(Fade(gameOver, 1f, 0.7f));
+    }
+
+    public void Victory()
+    {
+        AudioManager.instance.PlaySFX("Win", 1f);
+        board.enabled = false;
+        victoryPanel.SetActive(true);
+        hiscoreVictoryMenuText.text = score.ToString();
+    }
+
+    public void ShowSettings()
+    {
+        settingsToggle = !settingsToggle;
+
+        if (settingsToggle == true)
+        {
+            board.enabled = false;
+            settingsPanel.SetActive(true);
+        }
+        else
+        {
+            board.enabled = true;
+            settingsPanel.SetActive(false);
+        }
     }
 
     private IEnumerator Fade(CanvasGroup canvasGroup, float to, float delay)
@@ -65,24 +107,14 @@ public class GameManager : MonoBehaviour
         canvasGroup.alpha = to;
     }
 
-    public void IncreaseScore(int points){
-        SetScore(score + points);
-    }
-
-    private void SetScore(int score){
-        this.score = score;
+    public void IncreaseScore(int points)
+    {
+        score += points;
         scoreText.text = score.ToString();
-        SaveHighScore();
     }
 
-    private void SaveHighScore(){
-        int highScore = LoadHighScore();
-        if(score > highScore){
-            PlayerPrefs.SetInt("HighScore", score);
-        }
-    }
-
-    private int LoadHighScore(){
+    private int LoadHighScore()
+    {
         return PlayerPrefs.GetInt("HighScore", 0);
     }
 }

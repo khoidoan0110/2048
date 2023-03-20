@@ -112,6 +112,7 @@ public class Board : MonoBehaviour
                 if (CanMerge(tile, adjacentCell.tile))
                 {
                     Merge(tile, adjacentCell.tile);
+                    AudioManager.instance.PlaySFX("Slide", 1.8f);
                     return true;
                 }
                 break;
@@ -123,6 +124,7 @@ public class Board : MonoBehaviour
         if (newCell != null)
         {
             tile.MoveTo(newCell);
+            AudioManager.instance.PlaySFX("Slide", 2f);
             return true;
         }
         return false;
@@ -184,6 +186,11 @@ public class Board : MonoBehaviour
         //prevent index out of tileState array bounds
         int index = Mathf.Clamp(indexOf(b.state) + 1, 0, tileStates.Length - 1);
         int number = b.number * 2;
+
+        //Win when reached 2048
+        if(number == 2048){
+            GameManager.instance.Victory();
+        }
 
         b.SetState(tileStates[index], number);
 
