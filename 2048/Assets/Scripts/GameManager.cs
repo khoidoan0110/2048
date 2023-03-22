@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
+using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
@@ -15,7 +16,6 @@ public class GameManager : MonoBehaviour
     [SerializeField] private GameObject settingsPanel;
     [SerializeField] private GameObject victoryPanel;
     private int score, highScore;
-    private bool settingsToggle = false;
 
     private void Awake()
     {
@@ -35,7 +35,7 @@ public class GameManager : MonoBehaviour
     {
         if (score > highScore)
         {
-            PlayerPrefs.SetInt("HighScore", score);
+            PlayerPrefs.SetInt("highScore", score);
             hiscoreText.text = score.ToString();
         }
     }
@@ -62,6 +62,7 @@ public class GameManager : MonoBehaviour
     public void GameOver()
     {
         AudioManager.instance.PlaySFX("Lose", 1f);
+        AudioManager.instance.StopMusic();
         board.enabled = false;
         gameOver.interactable = true;
         StartCoroutine(Fade(gameOver, 1f, 0.7f));
@@ -70,6 +71,7 @@ public class GameManager : MonoBehaviour
     public void Victory()
     {
         AudioManager.instance.PlaySFX("Win", 1f);
+        AudioManager.instance.StopMusic();
         board.enabled = false;
         victoryPanel.SetActive(true);
         hiscoreVictoryMenuText.text = score.ToString();
@@ -77,18 +79,8 @@ public class GameManager : MonoBehaviour
 
     public void ShowSettings()
     {
-        settingsToggle = !settingsToggle;
-
-        if (settingsToggle == true)
-        {
-            board.enabled = false;
-            settingsPanel.SetActive(true);
-        }
-        else
-        {
-            board.enabled = true;
-            settingsPanel.SetActive(false);
-        }
+        board.enabled = false;
+        settingsPanel.SetActive(true);
     }
 
     private IEnumerator Fade(CanvasGroup canvasGroup, float to, float delay)
@@ -115,6 +107,17 @@ public class GameManager : MonoBehaviour
 
     private int LoadHighScore()
     {
-        return PlayerPrefs.GetInt("HighScore", 0);
+        return PlayerPrefs.GetInt("highScore", 0);
+    }
+
+    public void CloseSettings()
+    {
+        board.enabled = true;
+        settingsPanel.SetActive(false);
+    }
+
+    public void Home()
+    {
+        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex - 1);
     }
 }
