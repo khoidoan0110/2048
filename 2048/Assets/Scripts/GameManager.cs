@@ -33,6 +33,9 @@ public class GameManager : MonoBehaviour
 
     void Update()
     {
+        scoreText.text = score.ToString();
+        hiscoreVictoryMenuText.text = score.ToString();
+        
         if (score > highScore)
         {
             PlayerPrefs.SetInt("highScore", score);
@@ -74,7 +77,6 @@ public class GameManager : MonoBehaviour
         AudioManager.instance.StopMusic();
         board.enabled = false;
         victoryPanel.SetActive(true);
-        hiscoreVictoryMenuText.text = score.ToString();
     }
 
     public void ShowSettings()
@@ -102,7 +104,6 @@ public class GameManager : MonoBehaviour
     public void IncreaseScore(int points)
     {
         score += points;
-        scoreText.text = score.ToString();
     }
 
     private int LoadHighScore()
